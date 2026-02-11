@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA icons</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        body {
+            --PWA-icon-width: 200px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #SVG {
+            width: var(--PWA-icon-width);
+        }
+
+        button-list {
+            width: var(--PWA-icon-width);
+        }
+
+        button {
+            width: 12em;
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: bold;
+            background: beige
+        }
+
+        #SVG {
+            background: blue;
+        }
+    </style>
+    <style>
+        grid-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        section {
+            background: #f0f0f0;
+            padding: 20px
+        }
+    </style>
+</head>
+
+<body>
+    <grid-columns>
+        <section>
+            <h1>PWA icons</h1>
+            <letter-background>
+                <letter-input style="margin-bottom: 20px;display:block">
+                    <label for="LETTERINPUT">Letter: </label>
+                    <input id="LETTERINPUT" type="text" maxlength="1" value="E" onkeyup="updateLetter(this.value)">
+                </letter-input>
+
+                <background-color style="margin-bottom: 20px;display:block">
+                    <label for="COLORINPUT">Color: </label>
+                    <input id="COLORINPUT" type="color" value="#FFD700" onkeyup="updateColor(this.value)">
+                    <input id="COLORNAME" type="text" placeholder="or enter color name" value="gold"
+                        onkeyup="updateColor(this.value)">
+                </background-color>
+            </letter-background>
+
+            <svg id="SVG" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54">
+                <rect width="54" height="54" fill="gold" rx="12" /><text x="45%" y="50%" dominant-baseline="central"
+                    font-family="arial" font-size="60" font-weight="bold" text-anchor="middle" id="LETTER">E</text>
+            </svg>
+
+            <button-list style="margin-top: 20px;display:inline-block">
+                <button onclick="exportPNG(72)">Export 72x72</button>
+                <button onclick="exportPNG(128)">Export 128x128</button>
+                <button onclick="exportPNG(144)">Export 144x144</button>
+                <button onclick="exportPNG(192)">Export 192x192</button>
+                <button onclick="exportPNG(512)">Export 512x512</button>
+            </button-list>
+
+            <hr>
+
+            <button onclick="copyToClipboard()">Copy Code</button>
+
+            <pre><code>
+            {
+                "name": "My PWA",
+                "start_url": "/",
+                "display": "standalone",
+                "icons": [
+                    {
+                        "src": "icon-72.png",
+                        "sizes": "72x72",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "icon-128.png",
+                        "sizes": "128x128",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "icon-144.png",
+                        "sizes": "144x144",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "icon-192.png",
+                        "sizes": "192x192",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "icon-512.png",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ]
+            }
+</code></pre>
+            <script>
+                document.getElementById('LETTERINPUT').focus();
+                function updateLetter(letter) {
+                    LETTER.textContent = letter;
+                    localStorage.setItem('iconLetter', letter);
+                }
+                updateLetter(localStorage.getItem('iconLetter') || 'E');
+                // --------------------------------------------------------------------
+                function updateColor(color) {
+                    const svgRect = document.querySelector('#SVG rect');
+                    svgRect.setAttribute('fill', color);
+                    localStorage.setItem('iconColor', color);
+                }
+                updateColor(localStorage.getItem('iconColor') || 'gold');
+                // --------------------------------------------------------------------
+                function exportPNG(size) {
+                    const svg = document.getElementById('SVG');
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    const svgString = new XMLSerializer().serializeToString(svg);
+                    const img = new Image();
+                    const fileName = `icon-${LETTERINPUT.value}-${size}.png`;
+                    img.onload = function () {
+                        console.log('Downloading:', fileName);
+
+                        ctx.drawImage(img, 0, 0, size, size);
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = fileName;
+                        link.click();
+
+
+                        saveCanvas(canvas, fileName);
+                    };
+                    img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
+
+                }
+
+                async function saveCanvas(canvas, fileName) {
+                    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: fileName,
+                        types: [{
+                            description: "PNG Image",
+                            accept: { "image/png": [".png"] }
+                        }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                }
+                // --------------------------------------------------------------------
+                function copyToClipboard() {
+                    const codeBlock = document.querySelector('pre code');
+                    const text = codeBlock.textContent;
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Code copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                }
+            </script>
+        </section>
+        <!-- ****************************************************************************** -->
+        <section>
+            <h1>SVG it</h1>
+            <p>Collection of handy SVG tools and utilities</p>
+            <ul>
+                <li>
+                    <p>SVG d-path editor<br>
+                        <a href="https://yqnn.github.io/svg-path-editor">https://yqnn.github.io/svg-path-editor</a>
+                    </p>
+                </li>
+                <li>
+                    <p>convert polygon to rounded corners<br>
+                        <a href="https://codepen.io/enxaneta/pen/bJZRPb">https://codepen.io/enxaneta/pen/bJZRPb</a>
+                    </p>
+                </li>
+                <li>
+                    <p>Clean SVG - SVGO<br>
+                        <a href="https://jakearchibald.github.io/svgomg/">https://jakearchibald.github.io/svgomg/</a>
+                    </p>
+                </li>
+                <li>
+                    <p>viewBox settings (optimizing precision)<br>
+                        <a href="https://svg-viewbox.github.io">https://svg-viewbox.github.io</a>
+                    </p>
+                </li>
+                <li>
+                    <p>Text to SVG &lt;path&gt;
+                        <a href="https://text-to-svg.com/">https://text-to-svg.com/</a>
+                    </p>
+                </li>
+                <li>
+                    <p>SVG to CSS shapes
+                        <a href="https://css-generators.com/svg-to-css/">https://css-generators.com/svg-to-css/</a>
+                    </p>
+                </li>
+            </ul>
+        </section>
+    </grid-columns>
+</body>
+
+</html>
