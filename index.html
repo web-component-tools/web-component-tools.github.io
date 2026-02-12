@@ -60,12 +60,13 @@
         const createElement = (tag, props = {}) => Object.assign(document.createElement(tag), props);
         customElements.define('copy-code', class extends HTMLElement {
             connectedCallback() {
+                this.style.display = 'block'; this.style.position = 'relative'; this.style.cursor = 'pointer';
                 this.onclick = () => {
                     const text = this.textContent.trim();
                     navigator.clipboard.writeText(text).then(() => {
                         const alert_el = createElement('div', {
                             textContent: 'Code copied to clipboard!',
-                            style: 'position:fixed;top:20px;left:50%;background:lightgreen;color:white;padding:15px 20px;border-radius:4px;z-index:9999'
+                            style: 'position:fixed;top:20px;left:50%;background:lightgreen;color:navy;padding:15px 20px;border-radius:4px;z-index:9999'
                         });
                         document.body.append(alert_el);
                         setTimeout(() => alert_el.remove(), 2000);
