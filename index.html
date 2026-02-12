@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PWA icons</title>
     <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='rebeccapurple'/><text x='50%' y='50%' text-anchor='middle' dominant-baseline='central' font-size='70' fill='black' font-family='Arial'>T</text></svg>">
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='rebeccapurple'/><text x='50%' y='50%' text-anchor='middle' dominant-baseline='central' font-size='70' fill='gold' font-family='Arial'>T</text></svg>">
 
     <style>
         body {
@@ -19,7 +19,7 @@
             margin: 0 auto;
         }
 
-        h1 {
+        h2 {
             margin-bottom: 20px;
         }
 
@@ -47,7 +47,7 @@
     <style>
         grid-columns {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
         }
 
@@ -56,12 +56,39 @@
             padding: 20px
         }
     </style>
+    <script>
+        const createElement = (tag, props = {}) => Object.assign(document.createElement(tag), props);
+        customElements.define('copy-code', class extends HTMLElement {
+            connectedCallback() {
+                this.onclick = () => {
+                    const text = this.textContent.trim();
+                    navigator.clipboard.writeText(text).then(() => {
+                        const alert_el = createElement('div', {
+                            textContent: 'Code copied to clipboard!',
+                            style: 'position:fixed;top:20px;left:50%;background:lightgreen;color:white;padding:15px 20px;border-radius:4px;z-index:9999'
+                        });
+                        document.body.append(alert_el);
+                        setTimeout(() => alert_el.remove(), 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                    });
+                };
+            }
+        });
+    </script>
 </head>
 
 <body>
     <grid-columns>
+        <!-- ****************************************************************************** -->
         <section>
-            <h1>PWA icons</h1>
+            <copy-code>
+                <code>const createElement = (tag,props={}) => Object.assign(document.createElement(tag), props);</code>
+            </copy-code>
+            </section>
+            <!-- ****************************************************************************** -->
+            <section>
+                <h2>PWA icons</h2>
             <letter-background>
                 <letter-input style="margin-bottom: 20px;display:block">
                     <label for="LETTERINPUT">Letter: </label>
@@ -92,24 +119,24 @@
             <hr>
 
             <button onclick="copyToClipboard()">Copy Code</button>
-
-            <pre><code>
+            <copy-code>
+                <pre><code>
             {
                 "name": "My PWA",
                 "start_url": "/",
                 "display": "standalone",
                 "icons": [
-                    {
-                        "src": "icon-72.png",
-                        "sizes": "72x72",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "icon-128.png",
-                        "sizes": "128x128",
-                        "type": "image/png"
-                    },
-                    {
+                {
+                "src": "icon-72.png",
+                "sizes": "72x72",
+                "type": "image/png"
+                },
+                {
+                "src": "icon-128.png",
+                "sizes": "128x128",
+                "type": "image/png"
+                },
+                {
                         "src": "icon-144.png",
                         "sizes": "144x144",
                         "type": "image/png"
@@ -124,9 +151,10 @@
                         "sizes": "512x512",
                         "type": "image/png"
                     }
-                ]
+                    ]
             }
 </code></pre>
+            </copy-code>
             <script>
                 document.getElementById('LETTERINPUT').focus();
                 function updateLetter(letter) {
@@ -164,7 +192,6 @@
                         saveCanvas(canvas, fileName);
                     };
                     img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
-
                 }
 
                 async function saveCanvas(canvas, fileName) {
@@ -194,40 +221,30 @@
         </section>
         <!-- ****************************************************************************** -->
         <section>
-            <h1>SVG it</h1>
+            <h2>SVG it</h2>
             <p>Collection of handy SVG tools and utilities</p>
-            <ul>
-                <li>
-                    <p>SVG d-path editor<br>
-                        <a href="https://yqnn.github.io/svg-path-editor">https://yqnn.github.io/svg-path-editor</a>
-                    </p>
-                </li>
-                <li>
-                    <p>convert polygon to rounded corners<br>
-                        <a href="https://codepen.io/enxaneta/pen/bJZRPb">https://codepen.io/enxaneta/pen/bJZRPb</a>
-                    </p>
-                </li>
-                <li>
-                    <p>Clean SVG - SVGO<br>
-                        <a href="https://jakearchibald.github.io/svgomg/">https://jakearchibald.github.io/svgomg/</a>
-                    </p>
-                </li>
-                <li>
-                    <p>viewBox settings (optimizing precision)<br>
-                        <a href="https://svg-viewbox.github.io">https://svg-viewbox.github.io</a>
-                    </p>
-                </li>
-                <li>
-                    <p>Text to SVG &lt;path&gt;
-                        <a href="https://text-to-svg.com/">https://text-to-svg.com/</a>
-                    </p>
-                </li>
-                <li>
-                    <p>SVG to CSS shapes
-                        <a href="https://css-generators.com/svg-to-css/">https://css-generators.com/svg-to-css/</a>
-                    </p>
-                </li>
-            </ul>
+            <ul id="LI"></ul>
+            <script>
+                LI.append(...[
+                    ["SVG d-path editor", "https://yqnn.github.io/svg-path-editor"],
+                    ["convert polygon to rounded corners", "https://codepen.io/enxaneta/pen/bJZRPb"],
+                    ["Clean SVG - SVGO", "https://jakearchibald.github.io/svgomg/"],
+                    ["viewBox settings (optimizing precision)", "https://svg-viewbox.github.io"],
+                    ["Text to SVG <path>", "https://text-to-svg.com/"],
+                    ["SVG to CSS shapes", "https://css-generators.com/svg-to-css/"],
+                    ["SVG Cartoon Text Fonts", "https://stuffandnonsense.co.uk/toon-text/tool.html"],
+                    ["Studio SVG editor", "https://www.svg.studio/"]
+                ].map(([name, url]) => {
+                    const li = createElement('li');
+                    const p = createElement('p', {
+                        textContent: name,
+                    });
+                    const a = createElement('a', { href: url, textContent: url });
+                    li.append(p);
+                    p.append(createElement('br'), a);
+                    return li;
+                }));
+            </script>
         </section>
     </grid-columns>
 </body>
