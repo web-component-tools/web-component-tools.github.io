@@ -58,22 +58,47 @@
     </style>
     <script>
         const createElement = (tag, props = {}) => Object.assign(document.createElement(tag), props);
+            // ====================================================================
         customElements.define('copy-code', class extends HTMLElement {
             connectedCallback() {
-                this.style.display = 'block'; this.style.position = 'relative'; this.style.cursor = 'pointer';
-                this.onclick = () => {
-                    const text = this.textContent.trim();
-                    navigator.clipboard.writeText(text).then(() => {
-                        const alert_el = createElement('div', {
-                            textContent: 'Code copied to clipboard!',
-                            style: 'position:fixed;top:20px;left:50%;background:lightgreen;color:navy;padding:15px 20px;border-radius:4px;z-index:9999'
+                setTimeout(() => {
+                    this.style.display = 'block'; this.style.position = 'relative'; this.style.cursor = 'pointer';
+                    this.onclick = () => {
+                        const text = this.textContent.trim();
+                        navigator.clipboard.writeText(text).then(() => {
+                            // -------------------------------------------------------------- create message
+                            const alert_el = createElement('div', {
+                                textContent: 'Code copied to clipboard!',
+                                style: `position:fixed;top:20px;left:50%`
+                                    + `;background:lightgreen;color:navy`
+                                    + `;padding:15px 20px;border-radius:4px;z-index:9999`
+                            });
+                            document.body.append(alert_el);
+                            setTimeout(() => alert_el.remove(), 2000);
+                        }).catch(err => {
+                            console.error('Failed to copy:', err);
                         });
-                        document.body.append(alert_el);
-                        setTimeout(() => alert_el.remove(), 2000);
-                    }).catch(err => {
-                        console.error('Failed to copy:', err);
-                    });
-                };
+                    };
+                }, 0);
+            }
+        });
+                    // ====================================================================
+                    customElements.define('topic-links', class extends HTMLElement {
+                        connectedCallback() {
+                            setTimeout(() => {
+                                this
+                                    .attachShadow({ mode: 'open' })
+                                    .append(
+                                        createElement("h2", {
+                                            textContent: this.title
+                                        }),
+                                        this.querySelector('p'),
+                                        createElement('ul', {
+                                            innerHTML: [...this.querySelectorAll('url')]
+                                                .map(x => `<li><a href="${x.textContent}">${x.title}</a></li>`).join('')
+                                        })
+                                    )
+                            }, 0);
             }
         });
     </script>
@@ -86,10 +111,10 @@
             <copy-code>
                 <code>const createElement = (tag,props={}) => Object.assign(document.createElement(tag), props);</code>
             </copy-code>
-            </section>
-            <!-- ****************************************************************************** -->
-            <section>
-                <h2>PWA icons</h2>
+        </section>
+        <!-- ****************************************************************************** -->
+        <section>
+            <h2>PWA icons</h2>
             <letter-background>
                 <letter-input style="margin-bottom: 20px;display:block">
                     <label for="LETTERINPUT">Letter: </label>
@@ -157,20 +182,21 @@
 </code></pre>
             </copy-code>
             <script>
+                // =====================================================================
                 document.getElementById('LETTERINPUT').focus();
                 function updateLetter(letter) {
                     LETTER.textContent = letter;
                     localStorage.setItem('iconLetter', letter);
                 }
                 updateLetter(localStorage.getItem('iconLetter') || 'E');
-                // --------------------------------------------------------------------
+                           ====================================================
                 function updateColor(color) {
                     const svgRect = document.querySelector('#SVG rect');
                     svgRect.setAttribute('fill', color);
                     localStorage.setItem('iconColor', color);
                 }
                 updateColor(localStorage.getItem('iconColor') || 'gold');
-                // --------------------------------------------------------------------
+                // ========================                    =============================
                 function exportPNG(size) {
                     const svg = document.getElementById('SVG');
                     const canvas = document.createElement('canvas');
@@ -181,20 +207,17 @@
                     const img = new Image();
                     const fileName = `icon-${LETTERINPUT.value}-${size}.png`;
                     img.onload = function () {
-                        console.log('Downloading:', fileName);
-
+                        cons                                :', fileName);
                         ctx.drawImage(img, 0, 0, size, size);
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
                         link.download = fileName;
                         link.click();
-
-
                         saveCanvas(canvas, fileName);
                     };
                     img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
                 }
-
+                // ----------------------------------------------------------------
                 async function saveCanvas(canvas, fileName) {
                     const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
                     const handle = await window.showSaveFilePicker({
@@ -208,7 +231,7 @@
                     await writable.write(blob);
                     await writable.close();
                 }
-                // --------------------------------------------------------------------
+                // =====================================================================
                 function copyToClipboard() {
                     const codeBlock = document.querySelector('pre code');
                     const text = codeBlock.textContent;
@@ -222,32 +245,25 @@
         </section>
         <!-- ****************************************************************************** -->
         <section>
-            <h2>SVG it</h2>
-            <p>Collection of handy SVG tools and utilities</p>
-            <ul id="LI"></ul>
-            <script>
-                LI.append(...[
-                    ["SVG d-path editor", "https://yqnn.github.io/svg-path-editor"],
-                    ["convert polygon to rounded corners", "https://codepen.io/enxaneta/pen/bJZRPb"],
-                    ["Clean SVG - SVGO", "https://jakearchibald.github.io/svgomg/"],
-                    ["viewBox settings (optimizing precision)", "https://svg-viewbox.github.io"],
-                    ["Text to SVG <path>", "https://text-to-svg.com/"],
-                    ["SVG to CSS shapes", "https://css-generators.com/svg-to-css/"],
-                    ["SVG Cartoon Text Fonts", "https://stuffandnonsense.co.uk/toon-text/tool.html"],
-                    ["Studio SVG editor", "https://www.svg.studio/"]
-                ].map(([name, url]) => {
-                    const li = createElement('li');
-                    const p = createElement('p', {
-                        textContent: name,
-                    });
-                    const a = createElement('a', { href: url, textContent: url });
-                    li.append(p);
-                    p.append(createElement('br'), a);
-                    return li;
-                }));
-            </script>
+            <topic-links title="SVG it">
+                <p>Collection of handy SVG tools and utilities</p>
+                <url title="SVG d-path editor">https://yqnn.github.io/svg-path-editor</url>,
+                <url title="convert polygon to rounded corners">https://codepen.io/enxaneta/pen/bJZRPb</url>,
+                <url title="Clean SVG - SVGO">https://jakearchibald.github.io/svgomg/</url>,
+                <url title="viewBox settings (optimizing precision)">https://svg-viewbox.github.io</url>,
+                <url title="Text to SVG <path>">https://text-to-svg.com/</url>,
+                <url title="SVG to CSS shapes">https://css-generators.com/svg-to-css/</url>,
+                <url title="SVG Cartoon Text Fonts">https://stuffandnonsense.co.uk/toon-text/tool.html</url>,
+                <url title="Studio SVG editor">https://www.svg.studio/</url>
+                </script>
+            </topic-links>
+            <topic-links title="Text It">
+                <p>HTML & CSS</p>
+                <url title="Highlight Words with CSS">https://codepen.io/vii120/pen/KwMBaaY</url>
+            </topic-links>
         </section>
     </grid-columns>
+    https://chatgpt.com/share/698de36b-ed1c-800b-a151-ccfd9e23f576
 </body>
 
 </html>
