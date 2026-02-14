@@ -57,6 +57,15 @@
         }
     </style>
     <script>
+            function showMessage(text) {
+                const alert_el = createElement('div', {
+                    textContent: text,
+                    style: `position:fixed;top:20px;left:50%` + `;background:lightgreen;color:navy`
+                        + `;padding:15px 20px;border-radius:4px;z-index:9999`
+                });
+                document.body.append(alert_el);
+                setTimeout(() => alert_el.remove(), 2000);
+            }
         const createElement = (tag, props = {}) => Object.assign(document.createElement(tag), props);
             // ====================================================================
         customElements.define('copy-code', class extends HTMLElement {
@@ -67,14 +76,7 @@
                         const text = this.textContent.trim();
                         navigator.clipboard.writeText(text).then(() => {
                             // -------------------------------------------------------------- create message
-                            const alert_el = createElement('div', {
-                                textContent: 'Code copied to clipboard!',
-                                style: `position:fixed;top:20px;left:50%`
-                                    + `;background:lightgreen;color:navy`
-                                    + `;padding:15px 20px;border-radius:4px;z-index:9999`
-                            });
-                            document.body.append(alert_el);
-                            setTimeout(() => alert_el.remove(), 2000);
+                            showMessage('Code copied to clipboard!');
                         }).catch(err => {
                             console.error('Failed to copy:', err);
                         });
@@ -82,23 +84,23 @@
                 }, 0);
             }
         });
-                    // ====================================================================
-                    customElements.define('topic-links', class extends HTMLElement {
-                        connectedCallback() {
-                            setTimeout(() => {
-                                this
-                                    .attachShadow({ mode: 'open' })
-                                    .append(
-                                        createElement("h2", {
-                                            textContent: this.title
-                                        }),
-                                        this.querySelector('p'),
-                                        createElement('ul', {
-                                            innerHTML: [...this.querySelectorAll('url')]
-                                                .map(x => `<li><a href="${x.textContent}">${x.title}</a></li>`).join('')
-                                        })
-                                    )
-                            }, 0);
+            // ====================================================================
+            customElements.define('topic-links', class extends HTMLElement {
+                connectedCallback() {
+                    setTimeout(() => {
+                        this
+                            .attachShadow({ mode: 'open' })
+                            .append(
+                                createElement("h2", {
+                                    textContent: this.title
+                                }),
+                                this.querySelector('p'),
+                                createElement('ul', {
+                                    innerHTML: [...this.querySelectorAll('url')]
+                                        .map(x => `<li><a href="${x.textContent}">${x.title}</a></li>`).join('')
+                                })
+                            )
+                    }, 0);
             }
         });
     </script>
@@ -110,6 +112,19 @@
         <section>
             <copy-code>
                 <code>const createElement = (tag,props={}) => Object.assign(document.createElement(tag), props);</code>
+            </copy-code>
+            <copy-code>
+                <code><pre>
+                                function showMessage(text) {
+                                    const alert_el = createElement('div', {
+                                        textContent: text,
+                                        style: `position:fixed;top:20px;left:50%` + `;background:lightgreen;color:navy`
+                                                + `;padding:15px 20px;border-radius:4px;z-index:9999`
+                                    });
+                                    document.body.append(alert_el);
+                                    setTimeout(() => alert_el.remove(), 2000);
+                                }
+                            </pre></code>
             </copy-code>
         </section>
         <!-- ****************************************************************************** -->
@@ -207,7 +222,7 @@
                     const img = new Image();
                     const fileName = `icon-${LETTERINPUT.value}-${size}.png`;
                     img.onload = function () {
-                        cons                                :', fileName);
+                        cons: ', fileName);
                         ctx.drawImage(img, 0, 0, size, size);
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
